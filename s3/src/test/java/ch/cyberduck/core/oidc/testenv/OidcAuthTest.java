@@ -23,6 +23,8 @@ import ch.cyberduck.core.Path;
 import ch.cyberduck.core.exception.BackgroundException;
 import ch.cyberduck.core.exception.LoginFailureException;
 import ch.cyberduck.core.proxy.Proxy;
+import ch.cyberduck.core.s3.S3AccessControlListFeature;
+import ch.cyberduck.core.s3.S3FindFeature;
 import ch.cyberduck.core.s3.S3ReadFeature;
 import ch.cyberduck.core.s3.S3Session;
 import ch.cyberduck.core.transfer.TransferStatus;
@@ -95,6 +97,17 @@ public class OidcAuthTest extends AbstractOidcTest {
 //        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
 //        //TODO write a file
 //    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFindBucket() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
+        session = new S3Session(host);
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+        //TODO write a file
+        final Path container = new Path("us-east-1-cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
+        assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
+    }
 
     // testUserWriteAccess
 
