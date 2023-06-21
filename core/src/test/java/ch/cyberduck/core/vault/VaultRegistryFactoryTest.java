@@ -1,4 +1,4 @@
-package ch.cyberduck.core.diagnostics;
+package ch.cyberduck.core.vault;
 
 /*
  * Copyright (c) 2002-2023 iterate GmbH. All rights reserved.
@@ -15,24 +15,18 @@ package ch.cyberduck.core.diagnostics;
  * GNU General Public License for more details.
  */
 
-import ch.cyberduck.core.Host;
+import ch.cyberduck.core.DisabledPasswordCallback;
 
-public class ChainedReachability extends DisabledReachability {
+import org.junit.Test;
 
-    private final Reachability[] delegates;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
-    public ChainedReachability(final Reachability... delegates) {
-        this.delegates = delegates;
-    }
+public class VaultRegistryFactoryTest {
 
-
-    @Override
-    public boolean isReachable(final Host bookmark) {
-        for(Reachability delegate : delegates) {
-            if(!delegate.isReachable(bookmark)) {
-                return false;
-            }
-        }
-        return true;
+    @Test
+    public void testCreate() {
+        assertNotNull(VaultRegistryFactory.get(new DisabledPasswordCallback()));
+        assertNotSame(VaultRegistry.DISABLED, VaultRegistryFactory.get(new DisabledPasswordCallback()));
     }
 }

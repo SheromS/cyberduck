@@ -102,17 +102,13 @@ public class DefaultVaultRegistry extends CopyOnWriteArraySet<Vault> implements 
         super.clear();
     }
 
-    @Override
-    public Vault find(final Session session, final Path file) throws VaultUnlockCancelException {
-        return this.find(session, file, true);
-    }
-
     /**
      * @param session Connection
      * @param file    File
      * @param lookup  Find and load any vault
      * @return Open or disabled vault
      */
+    @Override
     public Vault find(final Session session, final Path file, final boolean lookup) throws VaultUnlockCancelException {
         for(Vault vault : this) {
             if(vault.contains(file)) {
@@ -127,13 +123,15 @@ public class DefaultVaultRegistry extends CopyOnWriteArraySet<Vault> implements 
             if(file.attributes().getVault() != null) {
                 return listener.load(session, file.attributes().getVault(),
                         new HostPreferences(session.getHost()).getProperty("cryptomator.vault.masterkey.filename"),
-                        new HostPreferences(session.getHost()).getProperty("cryptomator.vault.config.filename"), new HostPreferences(session.getHost()).getProperty("cryptomator.vault.pepper").getBytes(StandardCharsets.UTF_8));
+                        new HostPreferences(session.getHost()).getProperty("cryptomator.vault.config.filename"),
+                        new HostPreferences(session.getHost()).getProperty("cryptomator.vault.pepper").getBytes(StandardCharsets.UTF_8));
             }
             final Path directory = file.getParent();
             if(directory.attributes().getVault() != null) {
                 return listener.load(session, directory.attributes().getVault(),
                         new HostPreferences(session.getHost()).getProperty("cryptomator.vault.masterkey.filename"),
-                        new HostPreferences(session.getHost()).getProperty("cryptomator.vault.config.filename"), new HostPreferences(session.getHost()).getProperty("cryptomator.vault.pepper").getBytes(StandardCharsets.UTF_8));
+                        new HostPreferences(session.getHost()).getProperty("cryptomator.vault.config.filename"),
+                        new HostPreferences(session.getHost()).getProperty("cryptomator.vault.pepper").getBytes(StandardCharsets.UTF_8));
             }
         }
         return Vault.DISABLED;
@@ -146,6 +144,10 @@ public class DefaultVaultRegistry extends CopyOnWriteArraySet<Vault> implements 
             // No proxying for disabled features
             return null;
         }
+        return this._getFeature(session, type, proxy);
+    }
+
+    protected <T> T _getFeature(final Session<?> session, final Class<T> type, final T proxy) {
         if(type == ListService.class) {
             return (T) new VaultRegistryListService(session, (ListService) proxy, this,
                     new LoadingVaultLookupListener(this, prompt))
