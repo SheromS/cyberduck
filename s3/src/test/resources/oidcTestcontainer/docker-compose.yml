@@ -83,6 +83,9 @@ services:
       - minio
     volumes:
       - ./testfile.txt:/testfile.txt
+    networks:
+      network:
+        ipv4_address: 192.168.2.143
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://192.168.2.142:9000 cyberduckAccessKey cyberduckSecretKey;
@@ -92,6 +95,7 @@ services:
       /usr/bin/mc cp /testfile.txt myminio/cyberduckbucket/testfile.txt;
       exit 0;
       "
+
 
 networks:
   network:
