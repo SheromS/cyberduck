@@ -69,7 +69,6 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         new S3ReadFeature(session).read(new Path(container, "testfile.txt", EnumSet.of(Path.Type.file)), status, new DisabledConnectionCallback());
         session.close();
     }
-/*
     @Test
     public void testWritePermissionOnBucket() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
@@ -100,6 +99,6 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
         assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
         session.close();
-    }*/
+    }
 
 }
