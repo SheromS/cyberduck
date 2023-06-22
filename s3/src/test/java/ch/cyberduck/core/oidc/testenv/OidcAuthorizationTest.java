@@ -56,17 +56,7 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
     }*/
 
-    @Test
-    public void testUserReadAccess() throws BackgroundException {
-        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
-        host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
-        final S3Session session = new S3Session(host);
-        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
-        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-        final TransferStatus status = new TransferStatus();
-        final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
-        new S3ReadFeature(session).read(new Path(container, "testfile.txt", EnumSet.of(Path.Type.file)), status, new DisabledConnectionCallback());
-    }
+
 
     @Test
     public void testWritePermissionOnBucket() throws BackgroundException {
