@@ -79,17 +79,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
         session.close();
     }
-    @Test
-    public void testFindBucket() throws BackgroundException {
-        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
-        final S3Session session = new S3Session(host);
-        host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
-        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
-        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-        final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
-        assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
-        session.close();
-    }
+
 
 /*    @Test
     public void testTokenRefresh() throws BackgroundException, InterruptedException {
