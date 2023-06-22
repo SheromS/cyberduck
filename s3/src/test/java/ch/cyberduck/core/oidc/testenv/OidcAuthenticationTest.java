@@ -44,7 +44,45 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 
 public class OidcAuthenticationTest extends AbstractOidcTest {
+
+
     @Test
+    public void testSuccessfulLoginViaOidc() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
+        final S3Session session = new S3Session(host);
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+        Credentials creds = host.getCredentials();
+        System.out.println(creds.toString());
+        assertNotEquals(StringUtils.EMPTY, creds.getUsername());
+        assertNotEquals(StringUtils.EMPTY, creds.getPassword());
+        // credentials from STS are written to the client object in the S3Session and not into the Credential object from the Host.
+        assertTrue(creds.getToken().isEmpty());
+        assertNotNull(creds.getOauth().getAccessToken());
+        assertNotNull(creds.getOauth().getRefreshToken());
+        assertNotEquals(Optional.of(Long.MAX_VALUE).get(), creds.getOauth().getExpiryInMilliseconds());
+
+    }
+
+    @Test(expected = LoginFailureException.class)
+    public void testInvalidUserName() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("WrongUsername", "rouser"));
+        final S3Session session = new S3Session(host);
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+
+    }
+
+    @Test(expected = LoginFailureException.class)
+    public void testInvalidPassword() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "invalidPassword"));
+        final S3Session session = new S3Session(host);
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+
+    }
+
+/*    @Test
     public void testSuccessfulLoginViaOidc() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
         final S3Session session = new S3Session(host);
@@ -78,7 +116,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
         session.close();
-    }
+    }*/
 
 
 /*    @Test

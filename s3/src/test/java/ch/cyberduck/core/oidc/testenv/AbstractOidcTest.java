@@ -28,11 +28,14 @@ package ch.cyberduck.core.oidc.testenv;/*
  * GNU General Public License for more details.
  */
 
+import ch.cyberduck.core.Credentials;
+import ch.cyberduck.core.Host;
 import ch.cyberduck.core.Profile;
 import ch.cyberduck.core.ProtocolFactory;
 import ch.cyberduck.core.exception.AccessDeniedException;
 import ch.cyberduck.core.exception.BackgroundException;
 import ch.cyberduck.core.s3.S3Protocol;
+import ch.cyberduck.core.s3.S3Session;
 import ch.cyberduck.core.serializer.impl.dd.ProfilePlistReader;
 
 import org.junit.AfterClass;
@@ -63,6 +66,9 @@ public abstract class AbstractOidcTest {
             .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
             .withExposedService("minio_1", 9000, Wait.forListeningPort());
 
+
+    S3Session session;
+
     @BeforeClass
     public static void beforeAll() {
         compose.start();
@@ -71,6 +77,8 @@ public abstract class AbstractOidcTest {
     @Before
     public void setup() throws BackgroundException {
         profile = readProfile();
+        compose.stop();
+        compose.start();
     }
 
     private Profile readProfile() throws AccessDeniedException {
@@ -81,6 +89,7 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
+
         //compose.stop();
     }
 }
