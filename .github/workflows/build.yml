@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-11, macos-12, ubuntu:20.04, windows-latest ]
+        os: [ macos-11, macos-12, ubuntu-latest, windows-latest ]
         include:
           - os: ubuntu-latest
             image: alpine:3.17
