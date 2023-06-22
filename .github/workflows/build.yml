@@ -17,7 +17,7 @@ jobs:
         os: [ macos-11, macos-12, ubuntu-latest, windows-latest ]
         include:
           - os: ubuntu-latest
-            image: alpine:3.17
+            image: alpine/socat:latest
             runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
