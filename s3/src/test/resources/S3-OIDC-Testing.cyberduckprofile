@@ -26,7 +26,7 @@
         <key>Description</key>
         <string>S3 STS AssumeRoleWithWebIdentity</string>
         <key>Default Hostname</key>
-        <string>192.168.2.142</string>
+        <string>localhost</string>
         <key>Default Port</key>
         <string>9000</string>
         <key>Default Nickname</key>
