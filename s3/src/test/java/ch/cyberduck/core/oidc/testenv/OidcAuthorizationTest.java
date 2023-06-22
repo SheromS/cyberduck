@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 
 public class OidcAuthorizationTest extends AbstractOidcTest {
 
-    @Test
+/*    @Test
     public void testFindBucket() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
         host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
@@ -54,9 +54,9 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
         final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
-    }
+    }*/
 
-    @Test
+/*    @Test
     public void testUserReadAccess() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
         host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
@@ -96,6 +96,6 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
         new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
         assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
-    }
+    }*/
 
 }

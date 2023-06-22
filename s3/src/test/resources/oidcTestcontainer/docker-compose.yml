@@ -96,7 +96,6 @@ services:
       exit 0;
       "
 
-
 networks:
   network:
     driver: bridge
