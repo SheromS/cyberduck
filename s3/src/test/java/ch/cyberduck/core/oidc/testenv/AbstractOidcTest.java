@@ -77,7 +77,6 @@ public abstract class AbstractOidcTest {
     @Before
     public void setup() throws BackgroundException {
         profile = readProfile();
-        compose.stop();
         compose.start();
     }
 
