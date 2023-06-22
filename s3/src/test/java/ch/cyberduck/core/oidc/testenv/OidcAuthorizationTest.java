@@ -36,12 +36,13 @@ import ch.cyberduck.core.s3.S3TouchFeature;
 import ch.cyberduck.core.transfer.TransferStatus;
 
 import org.junit.Test;
+import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Optional;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class OidcAuthorizationTest extends AbstractOidcTest {
 
@@ -99,6 +100,25 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
         assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
         session.close();
+    }
+
+
+    @Test
+    public void testSuccessfulLoginViaOidc() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
+        final S3Session session = new S3Session(host);
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+        Credentials creds = host.getCredentials();
+        System.out.println(creds.toString());
+        assertNotEquals(StringUtils.EMPTY, creds.getUsername());
+        assertNotEquals(StringUtils.EMPTY, creds.getPassword());
+        // credentials from STS are written to the client object in the S3Session and not into the Credential object from the Host.
+        assertTrue(creds.getToken().isEmpty());
+        assertNotNull(creds.getOauth().getAccessToken());
+        assertNotNull(creds.getOauth().getRefreshToken());
+        assertNotEquals(Optional.of(Long.MAX_VALUE).get(), creds.getOauth().getExpiryInMilliseconds());
+
     }
 
 
