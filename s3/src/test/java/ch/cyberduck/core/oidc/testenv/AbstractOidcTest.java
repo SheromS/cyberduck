@@ -54,7 +54,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import com.amazonaws.waiters.WaiterHandler;
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+
 public abstract class AbstractOidcTest {
 
     protected Profile profile = null;

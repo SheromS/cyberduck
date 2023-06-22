@@ -44,7 +44,7 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OidcAuthenticationTest extends AbstractOidcTest {
     @Test
     public void testSuccessfulLoginViaOidc() throws BackgroundException {

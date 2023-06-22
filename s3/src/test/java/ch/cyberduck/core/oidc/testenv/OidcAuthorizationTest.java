@@ -47,7 +47,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.*;
 
-public class OidcAuthorizationTest extends AbstractOidcTest {
+public class OidcAuthorizationTest extends OidcAuthenticationTest {
 
     @Test
     public void testAuthorizationFindBucket() throws BackgroundException {
