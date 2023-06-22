@@ -21,6 +21,7 @@ import ch.cyberduck.core.DisabledHostKeyCallback;
 import ch.cyberduck.core.DisabledLoginCallback;
 import ch.cyberduck.core.Host;
 import ch.cyberduck.core.Path;
+import ch.cyberduck.core.exception.AccessDeniedException;
 import ch.cyberduck.core.exception.BackgroundException;
 import ch.cyberduck.core.exception.InteroperabilityException;
 import ch.cyberduck.core.exception.LoginFailureException;
@@ -82,7 +83,7 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
     }
 
-    @Test(expected = InteroperabilityException.class)
+    @Test(expected = AccessDeniedException.class)
     public void testNoWritePermissionOnBucket() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
         host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));

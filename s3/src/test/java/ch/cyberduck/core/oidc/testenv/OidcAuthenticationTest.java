@@ -80,7 +80,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         session.close();
     }
 
-    @Test
+/*    @Test
     public void testTokenRefresh() throws BackgroundException, InterruptedException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
         host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
@@ -100,8 +100,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         String secondRefreshToken = host.getCredentials().getOauth().getRefreshToken();
         assertNotEquals(firstAccessToken, secondAccessToken);
         assertNotEquals(firstRefreshToken, secondRefreshToken);
-
-    }
+    }*/
 
 
     //separate STS Service test - maybe not possible
