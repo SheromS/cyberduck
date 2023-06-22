@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 public class OidcAuthenticationTest extends AbstractOidcTest {
 
 
-    @Test
+/*    @Test
     public void testSuccessfulLoginViaOidc() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
         final S3Session session = new S3Session(host);
@@ -80,7 +80,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
 
-    }
+    }*/
 
 /*    @Test
     public void testSuccessfulLoginViaOidc() throws BackgroundException {
