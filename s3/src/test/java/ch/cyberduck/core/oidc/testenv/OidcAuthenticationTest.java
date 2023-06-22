@@ -34,7 +34,9 @@ import ch.cyberduck.core.s3.S3Session;
 import ch.cyberduck.core.s3.S3TouchFeature;
 import ch.cyberduck.core.transfer.TransferStatus;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
@@ -44,9 +46,7 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 
 public class OidcAuthenticationTest extends AbstractOidcTest {
-
-
-/*    @Test
+    @Test
     public void testSuccessfulLoginViaOidc() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
         final S3Session session = new S3Session(host);
@@ -64,6 +64,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
 
     }
 
+
     @Test(expected = LoginFailureException.class)
     public void testInvalidUserName() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("WrongUsername", "rouser"));
@@ -80,43 +81,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
 
-    }*/
-
-/*    @Test
-    public void testSuccessfulLoginViaOidc() throws BackgroundException {
-        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
-        final S3Session session = new S3Session(host);
-        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
-        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-        Credentials creds = host.getCredentials();
-        System.out.println(creds.toString());
-        assertNotEquals(StringUtils.EMPTY, creds.getUsername());
-        assertNotEquals(StringUtils.EMPTY, creds.getPassword());
-        // credentials from STS are written to the client object in the S3Session and not into the Credential object from the Host.
-        assertTrue(creds.getToken().isEmpty());
-        assertNotNull(creds.getOauth().getAccessToken());
-        assertNotNull(creds.getOauth().getRefreshToken());
-        assertNotEquals(Optional.of(Long.MAX_VALUE).get(), creds.getOauth().getExpiryInMilliseconds());
-        session.close();
     }
-
-    @Test(expected = LoginFailureException.class)
-    public void testInvalidUserName() throws BackgroundException {
-        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("WrongUsername", "rouser"));
-        final S3Session session = new S3Session(host);
-        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
-        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-        session.close();
-    }
-
-    @Test(expected = LoginFailureException.class)
-    public void testInvalidPassword() throws BackgroundException {
-        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "invalidPassword"));
-        final S3Session session = new S3Session(host);
-        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
-        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-        session.close();
-    }*/
 
 
 /*    @Test

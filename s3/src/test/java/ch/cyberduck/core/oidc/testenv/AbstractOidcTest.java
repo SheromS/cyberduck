@@ -42,6 +42,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -52,7 +54,7 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import com.amazonaws.waiters.WaiterHandler;
-
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class AbstractOidcTest {
 
     protected Profile profile = null;
