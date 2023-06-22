@@ -56,7 +56,7 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
     }*/
 
-/*    @Test
+    @Test
     public void testUserReadAccess() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
         host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
@@ -96,6 +96,6 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
         new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
         assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
-    }*/
+    }
 
 }
