@@ -23,10 +23,9 @@ services:
       - ./keycloak/keycloak-realm.json:/opt/keycloak/data/import/keycloak-realm.json
       - ./certs:/opt/keycloak/dev/certs
     command: start-dev --import-realm --db=dev-mem --health-enabled=true
-    network_mode: "host"
-    #networks:
-      #network:
-        #ipv4_address: 192.168.2.140
+    networks:
+      network:
+        ipv4_address: 192.168.2.140
 
   healthcheck:
     image: busybox
@@ -39,10 +38,9 @@ services:
       interval: 1s
       timeout: 1s
       retries: 5
-    network_mode: "host"
-    #networks:
-     # network:
-      #  ipv4_address: 192.168.2.141
+    networks:
+      network:
+        ipv4_address: 192.168.2.141
 
   minio:
     build: ./minio
@@ -71,10 +69,9 @@ services:
       interval: 10s
       retries: 5
     command: server /data --console-address :9001
-    network_mode: "host"
-    #networks:
-     # network:
-      #  ipv4_address: 192.168.2.142
+    networks:
+      network:
+        ipv4_address: 192.168.2.142
 
   createbuckets:
     image: minio/mc
@@ -82,9 +79,9 @@ services:
       - minio
     volumes:
       - ./testfile.txt:/testfile.txt
-    #networks:
-     # network:
-      #  ipv4_address: 192.168.2.143
+    networks:
+      network:
+        ipv4_address: 192.168.2.143
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://192.168.2.142:9000 cyberduckAccessKey cyberduckSecretKey;
@@ -94,3 +91,11 @@ services:
       /usr/bin/mc cp /testfile.txt myminio/cyberduckbucket/testfile.txt;
       exit 0;
       "
+
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.2.0/24
+          gateway: 192.168.2.1
