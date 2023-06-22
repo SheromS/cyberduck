@@ -59,12 +59,13 @@ public abstract class AbstractOidcTest {
             new File("src/test/resources/oidcTestcontainer/docker-compose.yml"))
             .withPull(false)
             .withLocalCompose(true)
-            //.withOptions("--compatibility")
+            .withOptions("--compatibility")
             .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
             .withExposedService("minio_1", 9000, Wait.forListeningPort());
 
     @BeforeClass
     public static void beforeAll() {
+        compose.stop();
         compose.start();
     }
 
