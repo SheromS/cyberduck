@@ -65,7 +65,6 @@ public abstract class AbstractOidcTest {
 
     @BeforeClass
     public static void beforeAll() {
-        compose.stop();
         compose.start();
     }
 
@@ -82,6 +81,6 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
-        compose.stop();
+        //compose.stop();
     }
 }
