@@ -24,7 +24,7 @@ jobs:
       - name: Setup docker for MacOS
         run: |
           brew install colima
-          brew install docker docker-compose
+          brew install docker
           colima start
           # For testcontainers to find the Colima socket
           sudo ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
