@@ -63,16 +63,6 @@ import com.amazonaws.waiters.WaiterHandler;
 public abstract class AbstractOidcTest {
 
     protected Profile profile = null;
-
-/*    @ClassRule
-    public static DockerComposeContainer compose = new DockerComposeContainer(
-            new File("src/test/resources/oidcTestcontainer/docker-compose.yml"))
-            .withPull(false)
-            .withLocalCompose(true)
-            .withOptions("--compatibility")
-            .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
-            .withExposedService("minio_1", 9000, Wait.forListeningPort());*/
-
     private static DockerComposeContainer<?> compose;
 
     static {
@@ -84,7 +74,6 @@ public abstract class AbstractOidcTest {
                 .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
                 .withExposedService("minio_1", 9000, Wait.forListeningPort());
     }
-
 
     @BeforeClass
     public static void beforeAll() {
@@ -104,6 +93,5 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
-
     }
 }
