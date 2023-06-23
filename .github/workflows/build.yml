@@ -26,15 +26,15 @@ jobs:
         shell: bash
         if: runner.os == 'Windows'
 
-      - name: Disable Testcontainers for macOS-11
-        run: echo  "args=${{ env.args }} -P=no-testcontainers" >> "$GITHUB_ENV"
-        shell: bash
-        if: runner.os == 'macos-11'
-
-      - name: Disable Testcontainers for macOS-12
-        run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
-        shell: bash
-        if: runner.os == 'macos-12'
+      - name: Setup docker for MacOS
+        run: |
+          brew install colima
+          brew install docker
+          echo "{ \"credStore\" : \"desktop\" }" > ~/.docker/config.json
+          colima start
+          # For testcontainers to find the Colima socket
+          sudo ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
+        if: runner.os == 'macos'
 
       - run: choco install bonjour
         if: runner.os == 'Windows'
