@@ -27,7 +27,7 @@ jobs:
         if: runner.os == 'Windows'
 
       - name: Disable Testcontainers for macOS-11
-        run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
+        run: echo  "args=${{ env.args }} -P=no-testcontainers" >> "$GITHUB_ENV"
         if: runner.os == 'macos-11'
 
       - name: Disable Testcontainers for macOS-12
