@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Setup docker for MacOS
-        uses: docker-practice/actions-setup-docker@master
+        run: brew install docker
         if: runner.os == 'macos'
       - name: Disable Testcontainers for Windows
         run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
