@@ -44,7 +44,7 @@ import static org.junit.Assert.*;
 @Category(EmbeddedTest.class)
 public class OidcAuthorizationTest extends AbstractOidcTest {
 
-/*    @Test
+    @Test
     public void testAuthorizationFindBucket() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
         final S3Session session = new S3Session(host);
@@ -53,7 +53,7 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
         final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
-*//*        session.close();*//*
+/*        session.close();*/
     }
 
    @Test
@@ -66,7 +66,7 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         final TransferStatus status = new TransferStatus();
         final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
         new S3ReadFeature(session).read(new Path(container, "testfile.txt", EnumSet.of(Path.Type.file)), status, new DisabledConnectionCallback());
-*//*        session.close();*//*
+/*        session.close();*/
     }
     @Test
     public void testAuthorizationWritePermissionOnBucket() throws BackgroundException {
@@ -81,7 +81,7 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
         new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
         assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
-*//*        session.close();*//*
+/*        session.close();*/
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -97,8 +97,8 @@ public class OidcAuthorizationTest extends AbstractOidcTest {
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
         new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
         assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
-*//*        session.close();*//*
-    }*/
+/*        session.close();*/
+    }
 
 /*    @Test
     public void testSuccessfulLoginViaOidc() throws BackgroundException {

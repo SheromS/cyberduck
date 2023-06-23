@@ -37,13 +37,17 @@ import ch.cyberduck.core.exception.BackgroundException;
 import ch.cyberduck.core.s3.S3Protocol;
 import ch.cyberduck.core.s3.S3Session;
 import ch.cyberduck.core.serializer.impl.dd.ProfilePlistReader;
+import ch.cyberduck.test.EmbeddedTest;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.junit.runners.Suite;
 import org.slf4j.Logger;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -55,18 +59,34 @@ import java.util.HashSet;
 
 import com.amazonaws.waiters.WaiterHandler;
 
+@Category(EmbeddedTest.class)
 public abstract class AbstractOidcTest {
 
     protected Profile profile = null;
 
-    @ClassRule
+/*    @ClassRule
     public static DockerComposeContainer compose = new DockerComposeContainer(
             new File("src/test/resources/oidcTestcontainer/docker-compose.yml"))
             .withPull(false)
             .withLocalCompose(true)
             .withOptions("--compatibility")
             .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
-            .withExposedService("minio_1", 9000, Wait.forListeningPort());
+            .withExposedService("minio_1", 9000, Wait.forListeningPort());*/
+
+    private static DockerComposeContainer<?> compose;
+
+    static {
+        compose = new DockerComposeContainer<>(
+                new File("src/test/resources/oidcTestcontainer/docker-compose.yml"))
+                .withPull(false)
+                .withLocalCompose(true)
+                .withOptions("--compatibility")
+                .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
+                .withExposedService("minio_1", 9000, Wait.forListeningPort())
+                .withEnv("SOME_ENV_VARIABLE", "value"); // Set any environment variables needed
+        compose.start();
+    }
+
 
     @BeforeClass
     public static void beforeAll() {
@@ -76,7 +96,6 @@ public abstract class AbstractOidcTest {
     @Before
     public void setup() throws BackgroundException {
         profile = readProfile();
-        compose.start();
     }
 
     private Profile readProfile() throws AccessDeniedException {

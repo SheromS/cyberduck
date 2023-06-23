@@ -21,15 +21,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: Disable Testcontainers for Windows and macOS
-        run: |
-          if [[ "$RUNNER_OS" == "Windows" || "$RUNNER_OS" == "macOS" ]]; then
-            echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
-          fi
+      - name: Disable Testcontainers for Windows and MacOS
+        run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
         shell: bash
-        env:
-          RUNNER_OS: ${{ runner.os }}
-
+        if: runner.os == 'Windows' || runner.os == 'macos'
       - run: choco install bonjour
         if: runner.os == 'Windows'
       - uses: ilammy/msvc-dev-cmd@v1
