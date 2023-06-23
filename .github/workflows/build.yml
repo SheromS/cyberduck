@@ -21,9 +21,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: Setup docker for MacOS
+      - name: Install Docker Compose
+        if: runner.os == 'macos-11' || runner.os == 'macos-12'
         run: |
           brew install docker-compose
+          brew services start docker-compose
+      - name: Setup docker for MacOS
+        run: |
+          brew install docker
           colima start
           # For testcontainers to find the Colima socket
           sudo ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
