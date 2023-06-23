@@ -21,6 +21,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+      - name: Modify Docker config
+        if: runner.os == 'macos-11' || runner.os == 'macos-12'
+        run: |
+          sed -i '' 's/"credsStore":/"credStore":/g' $HOME/.docker/config.json
       - name: Setup docker for MacOS
         run: |
           brew install colima
