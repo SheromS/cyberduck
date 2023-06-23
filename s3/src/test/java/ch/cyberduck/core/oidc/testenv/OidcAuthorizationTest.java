@@ -23,7 +23,6 @@ import ch.cyberduck.core.Host;
 import ch.cyberduck.core.Path;
 import ch.cyberduck.core.exception.AccessDeniedException;
 import ch.cyberduck.core.exception.BackgroundException;
-import ch.cyberduck.core.exception.InteroperabilityException;
 import ch.cyberduck.core.exception.LoginFailureException;
 import ch.cyberduck.core.features.Delete;
 import ch.cyberduck.core.proxy.Proxy;
@@ -35,19 +34,18 @@ import ch.cyberduck.core.s3.S3Session;
 import ch.cyberduck.core.s3.S3TouchFeature;
 import ch.cyberduck.core.transfer.TransferStatus;
 
-import org.apache.logging.log4j.core.config.Order;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.experimental.categories.Category;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
+import ch.cyberduck.test.EmbeddedTest;
 
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-
-public class OidcAuthorizationTest extends OidcAuthenticationTest {
+@Category(EmbeddedTest.class)
+public class OidcAuthorizationTest extends AbstractOidcTest {
 
     @Test
     public void testAuthorizationFindBucket() throws BackgroundException {
@@ -120,7 +118,7 @@ public class OidcAuthorizationTest extends OidcAuthenticationTest {
         assertNotNull(creds.getOauth().getAccessToken());
         assertNotNull(creds.getOauth().getRefreshToken());
         assertNotEquals(Optional.of(Long.MAX_VALUE).get(), creds.getOauth().getExpiryInMilliseconds());
-
+        session.close();
     }
 
 
@@ -130,7 +128,7 @@ public class OidcAuthorizationTest extends OidcAuthenticationTest {
         final S3Session session = new S3Session(host);
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-
+        session.close();
     }
 
     @Test(expected = LoginFailureException.class)
@@ -139,7 +137,7 @@ public class OidcAuthorizationTest extends OidcAuthenticationTest {
         final S3Session session = new S3Session(host);
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-
+        session.close();
     }
 
 }
