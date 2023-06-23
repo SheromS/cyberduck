@@ -21,17 +21,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: Modify Docker config
-        if: runner.os == 'macos-11' || runner.os == 'macos-12'
-        run: |
-          sed -i '' 's/"credsStore":/"credStore":/g' $HOME/.docker/config.json
       - name: Setup docker for MacOS
-        run: |
-          brew install colima
-          brew install docker
-          colima start
-          # For testcontainers to find the Colima socket
-          sudo ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
+        uses: docker-practice/actions-setup-docker@master
         if: runner.os == 'macos'
       - name: Disable Testcontainers for Windows
         run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
