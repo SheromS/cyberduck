@@ -82,15 +82,15 @@ public abstract class AbstractOidcTest {
                 .withLocalCompose(true)
                 .withOptions("--compatibility")
                 .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
-                .withExposedService("minio_1", 9000, Wait.forListeningPort())
-                .withEnv("SOME_ENV_VARIABLE", "value"); // Set any environment variables needed
+                .withExposedService("minio_1", 9000, Wait.forListeningPort());
         compose.start();
     }
 
 
     @BeforeClass
     public static void beforeAll() {
-        compose.start();
+
+
     }
 
     @Before
