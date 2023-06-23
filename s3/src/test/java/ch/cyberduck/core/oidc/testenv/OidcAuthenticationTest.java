@@ -21,6 +21,7 @@ import ch.cyberduck.core.DisabledHostKeyCallback;
 import ch.cyberduck.core.DisabledLoginCallback;
 import ch.cyberduck.core.Host;
 import ch.cyberduck.core.Path;
+import ch.cyberduck.core.exception.AccessDeniedException;
 import ch.cyberduck.core.exception.BackgroundException;
 import ch.cyberduck.core.exception.InteroperabilityException;
 import ch.cyberduck.core.exception.LoginFailureException;
@@ -33,9 +34,11 @@ import ch.cyberduck.core.s3.S3ReadFeature;
 import ch.cyberduck.core.s3.S3Session;
 import ch.cyberduck.core.s3.S3TouchFeature;
 import ch.cyberduck.core.transfer.TransferStatus;
+import ch.cyberduck.test.EmbeddedTest;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runners.MethodSorters;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
@@ -44,7 +47,7 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Category(EmbeddedTest.class)
 public class OidcAuthenticationTest extends AbstractOidcTest {
     @Test
     public void testSuccessfulLoginViaOidc() throws BackgroundException {
@@ -64,7 +67,6 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
 
     }
 
-
     @Test(expected = LoginFailureException.class)
     public void testInvalidUserName() throws BackgroundException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("WrongUsername", "rouser"));
@@ -82,7 +84,61 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
 
     }
+    @Test
+    public void testAuthorizationFindBucket() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
+        final S3Session session = new S3Session(host);
+        host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+        final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
+        assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
+        /*        session.close();*/
+    }
 
+    @Test
+    public void testAuthorizationUserReadAccessOnBucket() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
+        final S3Session session = new S3Session(host);
+        host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+        final TransferStatus status = new TransferStatus();
+        final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
+        new S3ReadFeature(session).read(new Path(container, "testfile.txt", EnumSet.of(Path.Type.file)), status, new DisabledConnectionCallback());
+        /*        session.close();*/
+    }
+    @Test
+    public void testAuthorizationWritePermissionOnBucket() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
+        final S3Session session = new S3Session(host);
+        host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+        final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
+        final Path test = new Path(container, new AlphanumericRandomStringService().random(), EnumSet.of(Path.Type.file));
+        new S3TouchFeature(session, new S3AccessControlListFeature(session)).touch(test, new TransferStatus());
+        assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
+        new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
+        assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
+        /*        session.close();*/
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void testAuthorizationNoWritePermissionOnBucket() throws BackgroundException {
+        final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rouser", "rouser"));
+        host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
+        final S3Session session = new S3Session(host);
+        session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
+        session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
+        final Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
+        final Path test = new Path(container, new AlphanumericRandomStringService().random(), EnumSet.of(Path.Type.file));
+        new S3TouchFeature(session, new S3AccessControlListFeature(session)).touch(test, new TransferStatus());
+        assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
+        new S3DefaultDeleteFeature(session).delete(Collections.singletonList(test), new DisabledLoginCallback(), new Delete.DisabledCallback());
+        assertFalse(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(test));
+        /*        session.close();*/
+    }
 
 /*    @Test
     public void testTokenRefresh() throws BackgroundException, InterruptedException {
