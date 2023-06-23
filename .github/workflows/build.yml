@@ -28,12 +28,10 @@ jobs:
 
       - name: Disable Testcontainers for macOS-11
         run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
-        shell: bash
         if: runner.os == 'macos-11'
 
       - name: Disable Testcontainers for macOS-12
         run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
-        shell: bash
         if: runner.os == 'macos-12'
 
       - run: choco install bonjour
