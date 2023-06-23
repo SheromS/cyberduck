@@ -83,14 +83,12 @@ public abstract class AbstractOidcTest {
                 .withOptions("--compatibility")
                 .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
                 .withExposedService("minio_1", 9000, Wait.forListeningPort());
-        compose.start();
     }
 
 
     @BeforeClass
     public static void beforeAll() {
-
-
+        compose.start();
     }
 
     @Before
