@@ -68,9 +68,6 @@ public abstract class AbstractOidcTest {
             .withExposedService("keycloak_1", 8080, Wait.forListeningPort())
             .withExposedService("minio_1", 9000, Wait.forListeningPort());
 
-
-    S3Session session;
-
     @BeforeClass
     public static void beforeAll() {
         compose.start();
