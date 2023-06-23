@@ -21,20 +21,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: Disable Testcontainers for Windows
-        run: echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
-        shell: bash
-        if: runner.os == 'Windows'
-
-      - name: Setup docker for MacOS
+      - name: Disable Testcontainers for Windows and macOS
         run: |
-          brew install colima
-          brew install docker
-          brew install docker-compose
-          colima start
-          # For testcontainers to find the Colima socket
-          sudo ln -sf $HOME/.colima/default/docker.sock /var/run/docker.sock
-        if: runner.os == 'macos'
+          if [[ "$RUNNER_OS" == "Windows" || "$RUNNER_OS" == "macOS" ]]; then
+            echo "args=-P=no-testcontainers" >> "$GITHUB_ENV"
+          fi
+        shell: bash
+        env:
+          RUNNER_OS: ${{ runner.os }}
 
       - run: choco install bonjour
         if: runner.os == 'Windows'
