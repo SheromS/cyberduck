@@ -182,31 +182,31 @@ public class S3Session extends HttpSession<RequestEntityRestStorageService> {
 
     @Override
     protected RequestEntityRestStorageService connect(final Proxy proxy, final HostKeyCallback hostkey, final LoginCallback prompt, final CancelCallback cancel) {
+        if(host.getProtocol().getOAuthAuthorizationUrl() != null) {
+            authorizationService = new OAuth2RequestInterceptor(builder.build(ProxyFactory.get()
+                    .find(host.getProtocol().getOAuthAuthorizationUrl()), this, prompt).build(), host)
+                    .withRedirectUri(host.getProtocol().getOAuthRedirectUrl())
+                    .withFlowType(OAuth2AuthorizationService.FlowType.valueOf(host.getProtocol().getAuthorization()));
+        }
+
         final HttpClientBuilder configuration = builder.build(proxy, this, prompt);
 
-        // TODO use STS URL in profile/bookmark as criterion instead
-        final boolean isAssumeRoleWithWebIdentity = host.getProtocol().getDefaultPort() == 9000;
-        //
+        // TODO check with DK: AWSProfileSTSCredentialsConfigurator could have a STS different endpoint, too, e.g. own Keycloak. How to decide whether to go for AssumeRoleWithWebIdentity?
+        // TODO check with DK: confusing to to try auto-configure even for generic S3 profiles with username (=AccessKeyId) specified in the bookmark?
+        final boolean isAssumeRoleWithWebIdentity = host.getProtocol().getSTSEndpoint() != null;
+
         if((host.getProtocol().getOAuthAuthorizationUrl() != null) && !isAssumeRoleWithWebIdentity) {
             configuration.setServiceUnavailableRetryStrategy(new OAuth2ErrorResponseInterceptor(host, authorizationService, prompt));
         }
 
-//        if(host.getProtocol().getOAuthAuthorizationUrl() != null) {
-//            authorizationService = new OAuth2RequestInterceptor(builder.build(ProxyFactory.get()
-//                    .find(host.getProtocol().getOAuthAuthorizationUrl()), this, prompt).build(), host)
-//                    .withRedirectUri(host.getProtocol().getOAuthRedirectUrl())
-//                    .withFlowType(OAuth2AuthorizationService.FlowType.valueOf(host.getProtocol().getAuthorization()));
-//            configuration.addInterceptorLast(authorizationService);
-//            configuration.setServiceUnavailableRetryStrategy(new OAuth2ErrorResponseInterceptor(host, authorizationService, prompt));
-//        }
 
-        // Only for AWS
         if(S3Session.isAwsHostname(host.getHostname()) && ! isAssumeRoleWithWebIdentity) {
+            // Only for AWS: try auto-configure from AWS profile
             configuration.setServiceUnavailableRetryStrategy(new S3TokenExpiredResponseInterceptor(this,
                     new ThreadLocalHostnameDelegatingTrustManager(trust, host.getHostname()), key, prompt));
         }
-        //
         else if(isAssumeRoleWithWebIdentity) {
+            // renew temporary STS credentials using AssumeRoleWithWebIdentity with fallback to OAuth2 flow
             configuration.setServiceUnavailableRetryStrategy(new S3WebIdentityTokenExpiredResponseInterceptor(this,
                     new ThreadLocalHostnameDelegatingTrustManager(trust, host.getHostname()), key, prompt, authorizationService));
         }
@@ -219,12 +219,7 @@ public class S3Session extends HttpSession<RequestEntityRestStorageService> {
     @Override
     public void login(final Proxy proxy, final LoginCallback prompt, final CancelCallback cancel) throws BackgroundException {
         if(host.getProtocol().getOAuthAuthorizationUrl() != null) {
-            authorizationService = new OAuth2RequestInterceptor(builder.build(ProxyFactory.get()
-                    .find(host.getProtocol().getOAuthAuthorizationUrl()), this, prompt).build(), host)
-                    .withRedirectUri(host.getProtocol().getOAuthRedirectUrl())
-                    .withFlowType(OAuth2AuthorizationService.FlowType.valueOf(host.getProtocol().getAuthorization()));
             authorizationService.authorize(host, prompt, cancel);
-
         }
         if(Scheme.isURL(host.getProtocol().getContext())) {
             try {
@@ -240,14 +235,17 @@ public class S3Session extends HttpSession<RequestEntityRestStorageService> {
         }
         else {
             final Credentials credentials;
-            // Only for AWS
-            if(isAwsHostname(host.getHostname())) {
-                // Try auto-configure
+
+            // TODO see comments above isAssumeRoleWithWebIdentity=...?
+            final boolean isAssumeRoleWithWebIdentity = host.getProtocol().getSTSEndpoint() != null;
+            if(isAwsHostname(host.getHostname()) && !isAssumeRoleWithWebIdentity) {
+                // Only for AWS: try auto-configure from AWS profile
                 credentials = new AWSProfileSTSCredentialsConfigurator(
                         new ThreadLocalHostnameDelegatingTrustManager(trust, host.getHostname()), key, prompt).configure(host);
             }
-            // get temporary credentials for MinIO with Web Identity (OIDC)
-            else if(host.getProtocol().getOAuthAuthorizationUrl() != null) {
+
+            else if(isAssumeRoleWithWebIdentity) {
+                // get tempororay credentials from STS using AssumeRoleWithWebIdentity
                 credentials = new AssumeRoleWithWebIdentitySTSCredentialsConfigurator(new ThreadLocalHostnameDelegatingTrustManager(trust,
                         host.getHostname()), key, prompt).configure(host);
             }

@@ -4,6 +4,7 @@ services:
 
   keycloak:
     build: ./keycloak
+    hostname: keycloak
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -32,7 +33,7 @@ services:
     depends_on:
       keycloak:
         condition: service_started
-    command:  sh -c "until wget -q -O- http://192.168.2.140:8080/realms/cyberduckrealm/.well-known/openid-configuration >/dev/null 2>&1; do sleep 1; done"
+    command:  sh -c "until wget -q -O- http://keycloak:8080/realms/cyberduckrealm/.well-known/openid-configuration >/dev/null 2>&1; do sleep 1; done"
     healthcheck:
       test: ["CMD-SHELL", "exit 0"]
       interval: 1s
@@ -44,6 +45,7 @@ services:
 
   minio:
     build: ./minio
+    hostname: minio
     depends_on:
       healthcheck:
         condition: service_completed_successfully
@@ -52,20 +54,20 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
+      # TODO needed?
       - ./data:/data
     environment:
       #TZ: Europe/Zurich
       MINIO_ROOT_USER: cyberduckAccessKey
       MINIO_ROOT_PASSWORD: cyberduckSecretKey
-      MINIO_IDENTITY_OPENID_CONFIG_URL: http://192.168.2.140:8080/realms/cyberduckrealm/.well-known/openid-configuration
-      #MINIO_IDENTITY_OPENID_CONFIG_URL: http://host.docker.internal:8080/realms/cyberduckrealm/.well-known/openid-configuration
+      MINIO_IDENTITY_OPENID_CONFIG_URL: http://keycloak:8080/realms/cyberduckrealm/.well-known/openid-configuration
       MINIO_IDENTITY_OPENID_CLIENT_ID: minio
       MINIO_IDENTITY_OPENID_CLIENT_SECRET: password
       MINIO_IDENTITY_OPENID_DISPLAY_NAME: SSO_Keycloak
       MINIO_IDENTITY_OPENID_SCOPES: openid,email,minio-authorization
-      MINIO_IDENTITY_OPENID_REDIRECT_URI_DYNAMIC: "true"
+      MINIO_IDENTITY_OPENID_REDIRECT_URI: http://minio:9001/oauth_callback
     healthcheck:
-      test: [ "CMD-SHELL", "curl --fail http://192.168.2.142:9001/login || exit 1" ]
+      test: [ "CMD-SHELL", "curl --fail http://minio:9001/login || exit 1" ]
       interval: 10s
       retries: 5
     command: server /data --console-address :9001
@@ -80,12 +82,14 @@ services:
     volumes:
       - ./testfile.txt:/testfile.txt
     entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc alias set myminio http://192.168.2.142:9000 cyberduckAccessKey cyberduckSecretKey;
+      /bin/bash -c "
+      set -x;
+      until curl --fail http://minio:9001/login >/dev/null 2>&1; do sleep 1; done;
+      /usr/bin/mc alias set myminio http://minio:9000 cyberduckAccessKey cyberduckSecretKey;
       /usr/bin/mc mb myminio/cyberduckbucket;
-      /usr/bin/mc policy set public myminio/cyberduckbucket;
-      /usr/bin/mc share upload --recursive myminio/mydata;
+      /usr/bin/mc anonymous set public myminio/cyberduckbucket;
       /usr/bin/mc cp /testfile.txt myminio/cyberduckbucket/testfile.txt;
+      /usr/bin/mc ls myminio/cyberduckbucket;
       exit 0;
       "
     networks:

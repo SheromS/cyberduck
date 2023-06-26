@@ -20,39 +20,36 @@
         <key>Protocol</key>
         <string>s3</string>
         <key>Vendor</key>
-        <string>s3-sts-localhost</string>
+        <string>s3-sts-google</string>
         <key>Bundled</key>
         <true/>
         <key>Description</key>
-        <string>S3 STS AssumeRoleWithWebIdentity (MiniO and Keycloaklocalhost)</string>
-        <key>Default Hostname</key>
-        <string>localhost</string>
-        <key>Default Port</key>
-        <string>9000</string>
+        <string>S3 STS AssumeRoleWithWebIdentity with Google Identity Provider</string>
         <key>Default Nickname</key>
-        <string>MinIO</string>
+        <string>S3 STS</string>
+        <key>Default Hostname</key>
+        <string>s3.amazonaws.com</string>
         <key>Scheme</key>
-        <string>http</string>
+        <string>https</string>
         <key>Authorization</key>
         <string>AuthorizationCode</string>
         <key>OAuth Authorization Url</key>
-        <string>http://localhost:8180/realms/cryptomator/protocol/openid-connect/auth</string>
+        <string>https://accounts.google.com/o/oauth2/auth</string>
         <key>OAuth Token Url</key>
-        <string>http://localhost:8180/realms/cryptomator/protocol/openid-connect/token</string>
-        <key>OAuth Client ID</key>
-        <string>minio</string>
-        <key>OAuth Client Secret</key>
-        <string>eCvxJkjLs5EstIwZTW6oU1LWswWZlhL3</string>
-        <key>OAuth Redirect Url</key>
-        <string>x-cyberduck-action:oauth</string>
+        <string>https://oauth2.googleapis.com/token</string>
         <key>Scopes</key>
         <array>
+            <string>openid</string>
         </array>
+        <key>OAuth Client ID</key>
+        <string>996125414232-s922bvdt21nceeh5dq1gb6av8plpj7hr.apps.googleusercontent.com</string>
+        <key>OAuth Redirect Url</key>
+        <string>io.cyberduck:oauth</string>
+        <key>STS Endpoint</key>
+        <string>https://sts.amazonaws.com</string>
         <key>Password Configurable</key>
         <false/>
         <key>Username Configurable</key>
         <false/>
-        <key>Path Configurable</key>
-        <true/>
     </dict>
 </plist>

@@ -641,7 +641,7 @@
         "*"
       ],
       "webOrigins": [
-        "http://minio:9000"
+        "*"
       ],
       "notBefore": 0,
       "bearerOnly": false,

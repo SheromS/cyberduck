@@ -20,17 +20,17 @@
         <key>Protocol</key>
         <string>s3</string>
         <key>Vendor</key>
-        <string>s3-sts</string>
+        <string>s3-minio-sts-cyberduckrealm-localhost</string>
         <key>Bundled</key>
         <true/>
         <key>Description</key>
-        <string>S3 STS AssumeRoleWithWebIdentity</string>
+        <string>S3 STS AssumeRoleWithWebIdentity (MiniO localhost and Keycloak cyberduckrealm localhost)</string>
+        <key>Default Nickname</key>
+        <string>S3 STS AssumeRoleWithWebIdentity (MiniO localhost and Keycloak cyberduckrealm localhost)</string>
         <key>Default Hostname</key>
         <string>localhost</string>
         <key>Default Port</key>
         <string>9000</string>
-        <key>Default Nickname</key>
-        <string>MinIO</string>
         <key>Scheme</key>
         <string>http</string>
         <key>Authorization</key>
@@ -51,11 +51,17 @@
             <string>profile</string>
             <string>minio-authorization</string>
         </array>
-        <key>Password Configurable</key>
-        <false/>
+        <key>STS Endpoint</key>
+        <string>http://localhost:9000</string>
         <key>Username Configurable</key>
-        <false/>
+        <true/>
+        <key>Password Configurable</key>
+         <true/>
         <key>Path Configurable</key>
         <true/>
+        <key>Properties</key>
+        <array>
+            <string>s3.bucket.virtualhost.disable=true</string>
+        </array>
     </dict>
 </plist>

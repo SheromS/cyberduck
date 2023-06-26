@@ -290,6 +290,36 @@ public interface Protocol extends Comparable<Protocol>, Serializable {
     boolean isOAuthPKCE();
 
     /**
+     * @return Default STS Endpoint URL.
+     */
+    String getSTSEndpoint();
+
+    /**
+     * @return Default STS RoleArn.
+     */
+    String getSTSRoleArn();
+
+    /**
+     * @return Default STS DurationSeconds.
+     */
+    // https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html
+    // Session Duration:
+    // You can provide a value from 900 seconds (15 minutes)
+    // up to the maximum session duration setting for the role.
+    // This setting can have a value from 1 hour to 12 hours.
+    int getSTSDurationSeconds();
+
+    /**
+     * @return Default STS Policy.
+     */
+    String getSTSPolicy();
+
+    /**
+     * @return Default STS Role Session Name.
+     */
+    String getSTSRoleSessionName();
+
+    /**
      * @return Custom connection protocol properties
      */
     Map<String, String> getProperties();
@@ -298,6 +328,7 @@ public interface Protocol extends Comparable<Protocol>, Serializable {
      * @return Provider specific help URL
      */
     String getHelp();
+
 
     enum Type {
         ftp,
