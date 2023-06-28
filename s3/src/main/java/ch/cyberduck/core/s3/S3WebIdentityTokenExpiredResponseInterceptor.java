@@ -61,30 +61,47 @@ public class S3WebIdentityTokenExpiredResponseInterceptor extends DisabledServic
         if(executionCount <= MAX_RETRIES) {
             switch(response.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_FORBIDDEN:
-                    try {
-                        if (host.getCredentials().getOauth().isExpired()) {
+//                    try {
+//                        if(null != response.getEntity()) {
+//                            EntityUtils.updateEntity(response, new BufferedHttpEntity(response.getEntity()));
+//                            final S3ServiceException failure = new S3ServiceException(response.getStatusLine().getReasonPhrase(),
+//                                    EntityUtils.toString(response.getEntity()));
+//
+//                            BackgroundException s3exception = new S3ExceptionMappingService().map(failure);
+//                            System.out.println("-----S3-Exception-------");
+//
+//                            System.out.println(s3exception.getDetail());
+//                            System.out.println(s3exception.getMessage());
+
                             try {
-                                host.getCredentials().setOauth(authorizationService.refresh());
-                                log.debug("OAuth refreshed. Refreshing STS token.");
+                                if(host.getCredentials().getOauth().isExpired()) {
+                                    try {
+                                        host.getCredentials().setOauth(authorizationService.refresh());
+                                        log.debug("OAuth refreshed. Refreshing STS token.");
+                                    }
+                                    catch(InteroperabilityException | LoginFailureException e3) {
+                                        log.warn(String.format("Failure %s refreshing OAuth tokens", e3));
+                                        authorizationService.authorize(host, prompt, new DisabledCancelCallback());
+                                    }
+                                }
+
+                                Credentials credentials = configurator.configure(host);
+                                session.getClient().setProviderCredentials(credentials.isAnonymousLogin() ? null :
+                                        new AWSSessionCredentials(credentials.getUsername(), credentials.getPassword(),
+                                                credentials.getToken()));
+
+                                return true;
                             }
-                            catch(InteroperabilityException | LoginFailureException e3) {
-                                log.warn(String.format("Failure %s refreshing OAuth tokens", e3));
-                                authorizationService.authorize(host, prompt, new DisabledCancelCallback());
+                            catch(BackgroundException e) {
+                                log.error("Failed to refresh OAuth in order to get STS", e);
+                                throw new RuntimeException(e);
                             }
                         }
-
-                        Credentials credentials = configurator.configure(host);
-                        session.getClient().setProviderCredentials(credentials.isAnonymousLogin() ? null :
-                                new AWSSessionCredentials(credentials.getUsername(), credentials.getPassword(),
-                                        credentials.getToken()));
-
-                        return true;
-                    }
-                    catch(BackgroundException e) {
-                        log.error("Failed to refresh OAuth in order to get STS", e);
-                        throw new RuntimeException(e);
-                    }
-            }
+//                    }
+//                    catch(IOException e) {
+//                        log.warn(String.format("Failure parsing response entity from %s", response));
+//                    }
+//            }
         }
         else {
             if(log.isWarnEnabled()) {
