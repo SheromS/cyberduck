@@ -72,6 +72,7 @@ public class S3WebIdentityTokenExpiredResponseInterceptor extends DisabledServic
                         failure = new S3ServiceException(response.getStatusLine().getReasonPhrase(),
                                 EntityUtils.toString(response.getEntity()));
                     }
+                    // minio sometimes packs the error code and description in the http header
                     else{
                         failure = new S3ServiceException(response.getStatusLine().getReasonPhrase());
                         if(response.containsHeader("x-minio-error-code")) {
@@ -86,11 +87,11 @@ public class S3WebIdentityTokenExpiredResponseInterceptor extends DisabledServic
                     if(failure.getErrorCode().equals("InvalidAccessKeyId") || s3exception instanceof ExpiredTokenException) {
                         refreshOAuthAndSTS();
                     }
+                    return true;
                 }
                 catch(IOException e) {
                     log.warn(String.format("Failure parsing response entity from %s", response));
                 }
-                return true;
             }
         }
 
