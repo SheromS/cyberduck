@@ -15,7 +15,6 @@ package ch.cyberduck.core.oidc.testenv;
  * GNU General Public License for more details.
  */
 
-
 import ch.cyberduck.core.Profile;
 import ch.cyberduck.core.ProtocolFactory;
 import ch.cyberduck.core.exception.AccessDeniedException;
@@ -71,5 +70,6 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
+        compose.stop();
     }
 }
