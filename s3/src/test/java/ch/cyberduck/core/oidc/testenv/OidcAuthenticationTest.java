@@ -1,4 +1,6 @@
-package ch.cyberduck.core.oidc.testenv;/*
+package ch.cyberduck.core.oidc.testenv;
+
+/*
  * Copyright (c) 2002-2023 iterate GmbH. All rights reserved.
  * https://cyberduck.io/
  *
@@ -13,39 +15,29 @@ package ch.cyberduck.core.oidc.testenv;/*
  * GNU General Public License for more details.
  */
 
-import ch.cyberduck.core.AlphanumericRandomStringService;
 import ch.cyberduck.core.Credentials;
 import ch.cyberduck.core.DisabledCancelCallback;
-import ch.cyberduck.core.DisabledConnectionCallback;
 import ch.cyberduck.core.DisabledHostKeyCallback;
 import ch.cyberduck.core.DisabledLoginCallback;
 import ch.cyberduck.core.Host;
 import ch.cyberduck.core.Path;
 import ch.cyberduck.core.exception.BackgroundException;
-import ch.cyberduck.core.exception.InteroperabilityException;
 import ch.cyberduck.core.exception.LoginFailureException;
-import ch.cyberduck.core.features.Delete;
 import ch.cyberduck.core.proxy.Proxy;
 import ch.cyberduck.core.s3.S3AccessControlListFeature;
-import ch.cyberduck.core.s3.S3DefaultDeleteFeature;
 import ch.cyberduck.core.s3.S3FindFeature;
-import ch.cyberduck.core.s3.S3ReadFeature;
 import ch.cyberduck.core.s3.S3Session;
-import ch.cyberduck.core.s3.S3TouchFeature;
-import ch.cyberduck.core.transfer.TransferStatus;
 import ch.cyberduck.test.EmbeddedTest;
 
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
+
 @Category(EmbeddedTest.class)
 public class OidcAuthenticationTest extends AbstractOidcTest {
     @Test
@@ -55,7 +47,6 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
         Credentials creds = host.getCredentials();
-        System.out.println(creds.toString());
         assertNotEquals(StringUtils.EMPTY, creds.getUsername());
         assertNotEquals(StringUtils.EMPTY, creds.getPassword());
         // credentials from STS are written to the client object in the S3Session and not into the Credential object from the Host.
@@ -63,7 +54,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         assertNotNull(creds.getOauth().getAccessToken());
         assertNotNull(creds.getOauth().getRefreshToken());
         assertNotEquals(Optional.of(Long.MAX_VALUE).get(), creds.getOauth().getExpiryInMilliseconds());
-
+        session.close();
     }
 
     @Test(expected = LoginFailureException.class)
@@ -72,7 +63,7 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         final S3Session session = new S3Session(host);
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-
+        session.close();
     }
 
     @Test(expected = LoginFailureException.class)
@@ -81,11 +72,11 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         final S3Session session = new S3Session(host);
         session.open(Proxy.DIRECT, new DisabledHostKeyCallback(), new DisabledLoginCallback(), new DisabledCancelCallback());
         session.login(Proxy.DIRECT, new DisabledLoginCallback(), new DisabledCancelCallback());
-
+        session.close();
     }
 
 
-/*    @Test
+    @Test
     public void testTokenRefresh() throws BackgroundException, InterruptedException {
         final Host host = new Host(profile, profile.getDefaultHostname(), new Credentials("rawuser", "rawuser"));
         host.setProperty("s3.bucket.virtualhost.disable", String.valueOf(true));
@@ -95,17 +86,17 @@ public class OidcAuthenticationTest extends AbstractOidcTest {
         String firstAccessToken = host.getCredentials().getOauth().getAccessToken();
         String firstRefreshToken = host.getCredentials().getOauth().getRefreshToken();
         Long validTime = host.getCredentials().getOauth().getExpiryInMilliseconds() - System.currentTimeMillis();
-        System.out.println(String.format("Access Token is valid for %s seconds.", validTime / 1000));
+        log.info(String.format("Access Token is valid for %s seconds.", validTime / 1000));
         Path container = new Path("cyberduckbucket", EnumSet.of(Path.Type.directory, Path.Type.volume));
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
-        Thread.sleep(1100 * 60);
+        Thread.sleep(1100 * 30);
         assertTrue(host.getCredentials().getOauth().isExpired());
         assertTrue(new S3FindFeature(session, new S3AccessControlListFeature(session)).find(container));
         String secondAccessToken = host.getCredentials().getOauth().getAccessToken();
         String secondRefreshToken = host.getCredentials().getOauth().getRefreshToken();
         assertNotEquals(firstAccessToken, secondAccessToken);
         assertNotEquals(firstRefreshToken, secondRefreshToken);
-    }*/
+    }
 
 
     //separate STS Service test - maybe not possible

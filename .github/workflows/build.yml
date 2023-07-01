@@ -3,7 +3,7 @@ name: Unit Tests
 on:
   push:
     branches:
-      - feature/ci-testing
+      - master
   pull_request:
     branches:
       - master

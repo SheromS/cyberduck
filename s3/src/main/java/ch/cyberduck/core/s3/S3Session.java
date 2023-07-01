@@ -26,7 +26,6 @@ import ch.cyberduck.core.HostKeyCallback;
 import ch.cyberduck.core.ListProgressListener;
 import ch.cyberduck.core.ListService;
 import ch.cyberduck.core.LoginCallback;
-import ch.cyberduck.core.OAuthTokens;
 import ch.cyberduck.core.Path;
 import ch.cyberduck.core.PathAttributes;
 import ch.cyberduck.core.PathContainerService;
@@ -68,6 +67,7 @@ import ch.cyberduck.core.ssl.X509KeyManager;
 import ch.cyberduck.core.ssl.X509TrustManager;
 import ch.cyberduck.core.sts.AWSProfileSTSCredentialsConfigurator;
 import ch.cyberduck.core.sts.AssumeRoleWithWebIdentitySTSCredentialsConfigurator;
+import ch.cyberduck.core.sts.STSSecurityTokenHeaderHttpRequestInterceptor;
 import ch.cyberduck.core.threading.BackgroundExceptionCallable;
 import ch.cyberduck.core.threading.CancelCallback;
 import ch.cyberduck.core.transfer.TransferStatus;
@@ -184,31 +184,29 @@ public class S3Session extends HttpSession<RequestEntityRestStorageService> {
     protected RequestEntityRestStorageService connect(final Proxy proxy, final HostKeyCallback hostkey, final LoginCallback prompt, final CancelCallback cancel) {
         final HttpClientBuilder configuration = builder.build(proxy, this, prompt);
 
-        // TODO use STS URL in profile/bookmark as criterion instead
-        final boolean isAssumeRoleWithWebIdentity = host.getProtocol().getDefaultPort() == 9000;
-        //
+        final boolean isAssumeRoleWithWebIdentity = host.getProtocol().getSTSEndpoint() != null;
+
         if((host.getProtocol().getOAuthAuthorizationUrl() != null) && !isAssumeRoleWithWebIdentity) {
             configuration.setServiceUnavailableRetryStrategy(new OAuth2ErrorResponseInterceptor(host, authorizationService, prompt));
         }
 
-//        if(host.getProtocol().getOAuthAuthorizationUrl() != null) {
-//            authorizationService = new OAuth2RequestInterceptor(builder.build(ProxyFactory.get()
-//                    .find(host.getProtocol().getOAuthAuthorizationUrl()), this, prompt).build(), host)
-//                    .withRedirectUri(host.getProtocol().getOAuthRedirectUrl())
-//                    .withFlowType(OAuth2AuthorizationService.FlowType.valueOf(host.getProtocol().getAuthorization()));
-//            configuration.addInterceptorLast(authorizationService);
-//            configuration.setServiceUnavailableRetryStrategy(new OAuth2ErrorResponseInterceptor(host, authorizationService, prompt));
-//        }
+        if(host.getProtocol().getOAuthAuthorizationUrl() != null) {
+            authorizationService = new OAuth2RequestInterceptor(builder.build(ProxyFactory.get()
+                    .find(host.getProtocol().getOAuthAuthorizationUrl()), this, prompt).build(), host)
+                    .withRedirectUri(host.getProtocol().getOAuthRedirectUrl())
+                    .withFlowType(OAuth2AuthorizationService.FlowType.valueOf(host.getProtocol().getAuthorization()));
+        }
 
         // Only for AWS
         if(S3Session.isAwsHostname(host.getHostname()) && ! isAssumeRoleWithWebIdentity) {
             configuration.setServiceUnavailableRetryStrategy(new S3TokenExpiredResponseInterceptor(this,
                     new ThreadLocalHostnameDelegatingTrustManager(trust, host.getHostname()), key, prompt));
         }
-        //
+
         else if(isAssumeRoleWithWebIdentity) {
             configuration.setServiceUnavailableRetryStrategy(new S3WebIdentityTokenExpiredResponseInterceptor(this,
                     new ThreadLocalHostnameDelegatingTrustManager(trust, host.getHostname()), key, prompt, authorizationService));
+            configuration.addInterceptorLast(new STSSecurityTokenHeaderHttpRequestInterceptor(this));
         }
 
         final RequestEntityRestStorageService client = new RequestEntityRestStorageService(this, configuration);
@@ -218,14 +216,10 @@ public class S3Session extends HttpSession<RequestEntityRestStorageService> {
 
     @Override
     public void login(final Proxy proxy, final LoginCallback prompt, final CancelCallback cancel) throws BackgroundException {
-        if(host.getProtocol().getOAuthAuthorizationUrl() != null) {
-            authorizationService = new OAuth2RequestInterceptor(builder.build(ProxyFactory.get()
-                    .find(host.getProtocol().getOAuthAuthorizationUrl()), this, prompt).build(), host)
-                    .withRedirectUri(host.getProtocol().getOAuthRedirectUrl())
-                    .withFlowType(OAuth2AuthorizationService.FlowType.valueOf(host.getProtocol().getAuthorization()));
+        if (host.getProtocol().getOAuthAuthorizationUrl() != null) {
             authorizationService.authorize(host, prompt, cancel);
-
         }
+
         if(Scheme.isURL(host.getProtocol().getContext())) {
             try {
                 final Credentials temporary = new AWSSessionCredentialsRetriever(trust, key, this, host.getProtocol().getContext()).get();
@@ -311,11 +305,6 @@ public class S3Session extends HttpSession<RequestEntityRestStorageService> {
             return hostname.matches("([a-z0-9\\-]+\\.)?s3(\\.dualstack)?(\\.[a-z0-9\\-]+)?(\\.vpce)?\\.amazonaws\\.com(\\.cn)?");
         }
         return hostname.matches("([a-z0-9\\-]+\\.)?s3(\\.dualstack)?(\\.[a-z0-9\\-]+)?(\\.vpce)?\\.amazonaws\\.com");
-    }
-
-    public void refreshOAuthTokens() throws BackgroundException {
-        OAuthTokens freshTokens = authorizationService.refresh();
-        host.getCredentials().withOauth(freshTokens);
     }
 
     @Override

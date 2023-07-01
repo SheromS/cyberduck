@@ -8,7 +8,6 @@ services:
       - "8080:8080"
       - "8443:8443"
     environment:
-      #TZ: Europe/Zurich
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KEYCLOAK_IMPORT: /tmp/keycloak-realm.json
@@ -25,7 +24,7 @@ services:
     command: start-dev --import-realm --db=dev-mem --health-enabled=true
     networks:
       network:
-        ipv4_address: 192.168.2.140
+       ipv4_address: 192.168.2.140
 
   healthcheck:
     image: busybox
@@ -54,11 +53,9 @@ services:
     volumes:
       - ./data:/data
     environment:
-      #TZ: Europe/Zurich
       MINIO_ROOT_USER: cyberduckAccessKey
       MINIO_ROOT_PASSWORD: cyberduckSecretKey
       MINIO_IDENTITY_OPENID_CONFIG_URL: http://192.168.2.140:8080/realms/cyberduckrealm/.well-known/openid-configuration
-      #MINIO_IDENTITY_OPENID_CONFIG_URL: http://host.docker.internal:8080/realms/cyberduckrealm/.well-known/openid-configuration
       MINIO_IDENTITY_OPENID_CLIENT_ID: minio
       MINIO_IDENTITY_OPENID_CLIENT_SECRET: password
       MINIO_IDENTITY_OPENID_DISPLAY_NAME: SSO_Keycloak
@@ -70,8 +67,8 @@ services:
       retries: 5
     command: server /data --console-address :9001
     networks:
-      network:
-        ipv4_address: 192.168.2.142
+     network:
+      ipv4_address: 192.168.2.142
 
   createbuckets:
     image: minio/mc
@@ -79,18 +76,18 @@ services:
       - minio
     volumes:
       - ./testfile.txt:/testfile.txt
-    networks:
-      network:
-        ipv4_address: 192.168.2.143
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://192.168.2.142:9000 cyberduckAccessKey cyberduckSecretKey;
+      /usr/bin/mc alias set myminio http://minio:9000 cyberduckAccessKey cyberduckSecretKey;
       /usr/bin/mc mb myminio/cyberduckbucket;
       /usr/bin/mc policy set public myminio/cyberduckbucket;
       /usr/bin/mc share upload --recursive myminio/mydata;
       /usr/bin/mc cp /testfile.txt myminio/cyberduckbucket/testfile.txt;
       exit 0;
       "
+    networks:
+      network:
+       ipv4_address: 192.168.2.143
 
 networks:
   network:

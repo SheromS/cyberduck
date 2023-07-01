@@ -45,6 +45,8 @@
         <string>password</string>
         <key>OAuth Redirect Url</key>
         <string>x-cyberduck-action:oauth</string>
+        <key>STS Endpoint</key>
+        <string>http://localhost:9000</string>
         <key>Scopes</key>
         <array>
             <string>openid</string>
@@ -57,5 +59,9 @@
         <false/>
         <key>Path Configurable</key>
         <true/>
+        <key>Properties</key>
+        <array>
+            <string>s3.bucket.virtualhost.disable=true</string>
+        </array>
     </dict>
 </plist>
