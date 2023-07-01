@@ -40,7 +40,6 @@ import java.util.HashSet;
 @Category(EmbeddedTest.class)
 public abstract class AbstractOidcTest {
 
-    protected static final Logger log = LogManager.getLogger(AbstractOidcTest.class);
     protected Profile profile = null;
     private static DockerComposeContainer<?> compose;
 
@@ -72,6 +71,5 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
-        compose.stop();
     }
 }
