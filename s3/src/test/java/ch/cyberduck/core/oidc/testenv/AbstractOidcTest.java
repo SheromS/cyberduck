@@ -70,6 +70,5 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
-        compose.stop();
     }
 }
