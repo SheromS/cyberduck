@@ -24,7 +24,7 @@ services:
     command: start-dev --import-realm --db=dev-mem --health-enabled=true
     networks:
       network:
-       ipv4_address: 192.168.2.140
+        ipv4_address: 192.168.2.140
 
   healthcheck:
     image: busybox
@@ -67,8 +67,8 @@ services:
       retries: 5
     command: server /data --console-address :9001
     networks:
-     network:
-      ipv4_address: 192.168.2.142
+      network:
+        ipv4_address: 192.168.2.142
 
   createbuckets:
     image: minio/mc
@@ -78,7 +78,7 @@ services:
       - ./testfile.txt:/testfile.txt
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 cyberduckAccessKey cyberduckSecretKey;
+      /usr/bin/mc alias set myminio http://192.168.2.142:9000 cyberduckAccessKey cyberduckSecretKey;
       /usr/bin/mc mb myminio/cyberduckbucket;
       /usr/bin/mc policy set public myminio/cyberduckbucket;
       /usr/bin/mc share upload --recursive myminio/mydata;
@@ -87,7 +87,7 @@ services:
       "
     networks:
       network:
-       ipv4_address: 192.168.2.143
+        ipv4_address: 192.168.2.143
 
 networks:
   network:
