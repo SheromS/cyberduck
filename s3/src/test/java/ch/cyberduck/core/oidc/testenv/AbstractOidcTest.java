@@ -31,6 +31,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -40,7 +42,8 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import static ch.cyberduck.core.threading.FailureDiagnostics.Type.network;
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({OidcAuthenticationTest.class, OidcAuthorizationTest.class})
 @Category(EmbeddedTest.class)
 public abstract class AbstractOidcTest {
 
