@@ -15,6 +15,7 @@ package ch.cyberduck.core.oidc.testenv;
  * GNU General Public License for more details.
  */
 
+
 import ch.cyberduck.core.Profile;
 import ch.cyberduck.core.ProtocolFactory;
 import ch.cyberduck.core.exception.AccessDeniedException;
@@ -23,6 +24,7 @@ import ch.cyberduck.core.s3.S3Protocol;
 import ch.cyberduck.core.serializer.impl.dd.ProfilePlistReader;
 import ch.cyberduck.test.EmbeddedTest;
 
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
@@ -30,16 +32,21 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
 import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 
+import static ch.cyberduck.core.threading.FailureDiagnostics.Type.network;
+
 @Category(EmbeddedTest.class)
 public abstract class AbstractOidcTest {
 
+    protected static final Logger log = LogManager.getLogger(AbstractOidcTest.class);
     protected Profile profile = null;
+    private static Network network;
     private static DockerComposeContainer<?> compose;
 
     static {
@@ -70,5 +77,16 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
+        // Stop and remove the containers
+        if (compose != null) {
+            compose.stop();
+            compose.close();
+        }
+
+        // Remove the network
+        if (network != null) {
+            network.close();
+        }
+
     }
 }
