@@ -42,13 +42,11 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import static ch.cyberduck.core.threading.FailureDiagnostics.Type.network;
-@RunWith(Suite.class)
-@Suite.SuiteClasses({OidcAuthenticationTest.class, OidcAuthorizationTest.class})
 @Category(EmbeddedTest.class)
 public abstract class AbstractOidcTest {
 
     protected static final Logger log = LogManager.getLogger(AbstractOidcTest.class);
-    protected Profile profile = null;
+    protected static Profile profile = null;
     private static Network network;
     private static DockerComposeContainer<?> compose;
 
@@ -70,6 +68,7 @@ public abstract class AbstractOidcTest {
     @Before
     public void setup() throws BackgroundException {
         profile = readProfile();
+        compose.start();
     }
 
     private Profile readProfile() throws AccessDeniedException {
@@ -80,16 +79,9 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
-        // Stop and remove the containers
-        if (compose != null) {
-            compose.stop();
-            compose.close();
-        }
-
         // Remove the network
-        if (network != null) {
+        if (compose == null && network != null) {
             network.close();
         }
-
     }
 }
