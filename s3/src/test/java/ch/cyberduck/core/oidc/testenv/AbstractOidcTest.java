@@ -68,7 +68,6 @@ public abstract class AbstractOidcTest {
     @Before
     public void setup() throws BackgroundException {
         profile = readProfile();
-        compose.start();
     }
 
     private Profile readProfile() throws AccessDeniedException {
@@ -79,7 +78,6 @@ public abstract class AbstractOidcTest {
 
     @AfterClass
     public static void disconnect() {
-        // Remove the network
         if (compose == null && network != null) {
             network.close();
         }
